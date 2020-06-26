@@ -267,12 +267,14 @@ unaccounted_for=`grep -Zvl "no build file found for" ${OUTDIR}-results/*.log \
     | xargs -0 grep -Zvl "dljc timed out for" \
     | xargs -0 echo`
 
-javafiles=`grep -oh "\S*\.java " ${unaccounted_for}`
+if [ ! -z "${unaccounted_for}"]; then
+    javafiles=`grep -oh "\S*\.java " ${unaccounted_for}`
 
-# echo ${javafiles}
+    # echo ${javafiles}
 
-if [ ! -f cloc-1.80.pl ]; then
-    wget "https://github.com/AlDanial/cloc/releases/download/1.80/cloc-1.80.pl"
+    if [ ! -f cloc-1.80.pl ]; then
+        wget "https://github.com/AlDanial/cloc/releases/download/1.80/cloc-1.80.pl"
+    fi
+
+    perl cloc-1.80.pl --report=${OUTDIR}-results/loc.txt ${javafiles}
 fi
-
-perl cloc-1.80.pl --report=${OUTDIR}-results/loc.txt ${javafiles}
