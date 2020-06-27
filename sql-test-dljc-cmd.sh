@@ -20,6 +20,6 @@ tout=3600 # 60 minutes
 rm -rf sql-test-results
 
 bash run-dljc.sh -o sql-test \
- -i /home/jason/experiments/test/sql-test-search.list \
+ -i /home/jason/git/sql-checker-experiments/sql-test.list \
  -c org.checkerframework.checker.sql.SqlChecker \
  -t ${tout}
