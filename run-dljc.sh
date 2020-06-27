@@ -208,7 +208,21 @@ do
     REPO=`echo ${REPOHASH} | awk '{print $1}'`
     HASH=`echo ${REPOHASH} | awk '{print $2}'`
 
+    REPO_USER=`echo ${REPO} | cut -d / -f 4`
     REPO_NAME=`echo ${REPO} | cut -d / -f 5`
+
+    FIND_GRADLE_CMD="curl -sfI https://api.github.com/repos/${REPO_USER}/${REPO_NAME}/contents/build.gradle"
+    FIND_MAVEN_CMD="curl -sfI https://api.github.com/repos/${REPO_USER}/${REPO_NAME}/contents/pom.xml"
+
+    eval ${FIND_GRADLE_CMD} < /dev/null > /dev/null
+    HAS_GRADLE=$?
+    eval ${FIND_MAVEN_CMD} < /dev/null > /dev/null
+    HAS_MAVEN=$?
+
+    # if [[ ${HAS_GRADLE} -ne 0 ]] && [[ ${HAS_MAVEN} -ne 0 ]]; then
+    #     echo "No build.gradle or pom.xml found for ${REPO}, skipping"
+    #     continue
+    # fi
 
     # need a layer in the file structure that prevents
     # two repos with the same name from colliding
@@ -221,7 +235,7 @@ do
     if [ ! -d ${REPO_NAME} ]; then
         # this environment variable prevents git from prompting for username/password
         # if the repository no longer exists
-        GIT_TERMINAL_PROMPT=0 git clone ${REPO}
+        GIT_TERMINAL_PROMPT=0 git clone ${REPO} --depth=1
     else
         rm -rf ${REPO_NAME}/dljc-out
     fi
@@ -267,7 +281,7 @@ unaccounted_for=`grep -Zvl "no build file found for" ${OUTDIR}-results/*.log \
     | xargs -0 grep -Zvl "dljc timed out for" \
     | xargs -0 echo`
 
-if [ ! -z "${unaccounted_for}"]; then
+if [ ! -z "${unaccounted_for}" ]; then
     javafiles=`grep -oh "\S*\.java " ${unaccounted_for}`
 
     # echo ${javafiles}
