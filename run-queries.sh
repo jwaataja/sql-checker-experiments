@@ -32,11 +32,11 @@ query=`cat ${query_file} | tr ' ' '+'`
 
 ## for storing the results before sorting and uniqing them
 rm -f /tmp/github-query-results.txt
-tempfile=$(mktemp /tmp/github-query-results.txt)
+tempfile=$(mktemp /tmp/github-query-results.XXX)
 #trap "rm -f ${tempfile}" 0 2 3 15
 
 rm -f /tmp/github-hash-results.txt
-hashfile=$(mktemp /tmp/github-hash-results.txt)
+hashfile=$(mktemp /tmp/github-hash-results.XXX)
 #trap "rm -f ${hashfile}" 0 2 3 15
 
 # find the repos
