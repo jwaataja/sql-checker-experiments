@@ -43,7 +43,7 @@ hashfile=$(mktemp /tmp/github-hash-results.XXX)
 for i in `seq ${page_count}`; do
     # GitHub only allows 30 searches per minute, so wait one minute every 30
     # requests.
-    if (( i % 30 == 0 && i > 0 )); then
+    if (( ($i - 1) % 30 == 0 && $i > 1 )); then
         sleep 60
     fi
 
