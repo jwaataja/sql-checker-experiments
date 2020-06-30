@@ -41,6 +41,12 @@ hashfile=$(mktemp /tmp/github-hash-results.XXX)
 
 # find the repos
 for i in `seq ${page_count}`; do
+    # GitHub only allows 30 searches per minute, so wait one minute every 30
+    # requests.
+    if (( i % 30 == 0 && i > 0 )); then
+        sleep 60
+    fi
+
     full_query='https://api.github.com/search/code?q='${query}'&page='${i}
 #    echo ${full_query}
     #    exit 1
@@ -53,6 +59,7 @@ for i in `seq ${page_count}`; do
     # 4. are owned by the user AndroidSDKSources, because those
     #    are all copies of (surprise!) the android SDK, which we
     #    don't care about for the same reasons.
+    # 5. are forks of the spring framework, because of how common they are.
     curl -sH "Authorization: token `cat git-personal-access-token`" \
      	     "Accept: application/vnd.github.v3+json" \
      	     ${full_query} \
@@ -63,6 +70,7 @@ for i in `seq ${page_count}`; do
     	| grep -v "kelloggm" \
         | grep -v "libcore" \
 	| grep -v "apache-harmony" \
+        | grep -v -i "spring" \
 	| grep -v "AndroidSDKSources" >> ${tempfile}
 done
 
