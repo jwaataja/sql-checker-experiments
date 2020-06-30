@@ -119,13 +119,13 @@ pushd ${OUTDIR}
 # Takes a single path argument. Counts the number of components in that path and
 # stores it in $COMPONENT_COUNT.
 function count_path_components {
-    # echo "calculating component count for $1"
+    echo "calculating component count for $1"
     COMPONENT_COUNT=1
     CURRENT_PATH="$1"
-    while [ `dirname "${CURRENT_PATH}"` != "${CURRENT_PATH}" ]; do
+    while [ "`dirname "${CURRENT_PATH}"`" != "${CURRENT_PATH}" ]; do
         # echo "got basename of `dirname ${CURRENT_PATH}`"
         COMPONENT_COUNT=$(($COMPONENT_COUNT + 1))
-        CURRENT_PATH=`dirname "${CURRENT_PATH}"`
+        CURRENT_PATH="`dirname "${CURRENT_PATH}"`"
     done
     # echo "finished component count, it is now ${COMPONENT_COUNT}"
 }
@@ -138,13 +138,13 @@ function count_path_components {
 # nesting, returns the first one lexicographically.
 function find_file {
     OUTPUT_PATH=""
-    FILES=`find $1 -name "$2" | sort`
+    FILES="`find $1 -name "$2" | sort`"
     if [ -z "${FILES}" ]; then
         return
     fi
 
-    FIRST_FILE=`head -n 1 <<< $FILES`
-    OTHER_FILES=`tail -n +2 <<< $FILES`
+    FIRST_FILE="`head -n 1 <<< "$FILES"`"
+    OTHER_FILES="`tail -n +2 <<< "$FILES"`"
 
     OUTPUT_PATH="$FIRST_FILE"
     # echo "the first file set output path to $OUTPUT_PATH"
@@ -170,34 +170,34 @@ function configure_and_exec_dljc {
   BUILD_FILE_PATH=""
   find_file '.' 'build.gradle'
   if [ ! -z "${OUTPUT_PATH}" ]; then
-      GRADLE_DIR=`dirname ${OUTPUT_PATH}`
+      GRADLE_DIR="`dirname "${OUTPUT_PATH}"`"
       chmod +x "$GRADLE_DIR/gradlew"
       BUILD_CMD="./gradlew clean compileJava -g .gradle -Dorg.gradle.java.home=${JAVA_HOME}"
       CLEAN_CMD="./gradlew clean -g .gradle -Dorg.gradle.java.home=${JAVA_HOME}"
       BUILD_FILE_PATH="$OUTPUT_PATH"
-  fi
-
-  find_file '.' 'pom.xml'
-  if [ ! -z "${OUTPUT_PATH}" ]; then
-      # if running on java 8, you must add /jre to the end of this Maven command
-      if [ "${JAVA_HOME}" = "${JAVA8_HOME}" ]; then
-          BUILD_CMD="mvn clean compile -Djava.home=${JAVA_HOME}/jre"
-          CLEAN_CMD="mvn clean -Djava.home=${JAVA_HOME}/jre"
+  else
+      find_file '.' 'pom.xml'
+      if [ ! -z "${OUTPUT_PATH}" ]; then
+          # if running on java 8, you must add /jre to the end of this Maven command
+          if [ "${JAVA_HOME}" = "${JAVA8_HOME}" ]; then
+              BUILD_CMD="mvn clean compile -Djava.home=${JAVA_HOME}/jre"
+              CLEAN_CMD="mvn clean -Djava.home=${JAVA_HOME}/jre"
+          else
+              BUILD_CMD="mvn clean compile -Djava.home=${JAVA_HOME}"
+              CLEAN_CMD="mvn clean -Djava.home=${JAVA_HOME}"
+          fi
+          BUILD_FILE_PATH="$OUTPUT_PATH"
       else
-          BUILD_CMD="mvn clean compile -Djava.home=${JAVA_HOME}"
-          CLEAN_CMD="mvn clean -Djava.home=${JAVA_HOME}"
+          BUILD_CMD="not found"
       fi
-      BUILD_FILE_PATH="$OUTPUT_PATH"
-  fi
-
-  if [ -z "$BUILD_FILE_PATH" ]; then
-      BUILD_CMD="not found"
   fi
 
   if [ "${BUILD_CMD}" = "not found" ]; then
       echo "no build file found for ${REPO_NAME}; not calling DLJC" > ../../../${OUTDIR}-results/${REPO_NAME}-wpi.log 
   else
-      pushd `dirname $BUILD_FILE_PATH`
+      echo "before push: `dirs`"
+      pushd "`dirname "$BUILD_FILE_PATH"`"
+      echo "after push: `dirs`"
       DLJC_CMD="${DLJC} -t wpi --cleanCmd \"${CLEAN_CMD}\""
       if [ ! "x${CHECKERS}" = "x" ]; then
 	  TMP="${DLJC_CMD} --checker ${CHECKERS}"
@@ -236,7 +236,9 @@ function configure_and_exec_dljc {
       
       DLJC_STATUS=$?
       # Exit build file directory.
+      echo "before pop: `dirs`"
       popd
+      echo "after pop: `dirs`"
       if [[ $DLJC_STATUS -eq 124 ]]; then
           echo "dljc timed out for ${REPO_NAME}"
           echo "dljc timed out for ${REPO_NAME}" > ../../../${OUTDIR}-results/${REPO_NAME}-wpi.log
