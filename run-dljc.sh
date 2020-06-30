@@ -170,7 +170,8 @@ function configure_and_exec_dljc {
   BUILD_FILE_PATH=""
   find_file '.' 'build.gradle'
   if [ ! -z "${OUTPUT_PATH}" ]; then
-      chmod +x gradlew
+      GRADLE_DIR=`dirname ${OUTPUT_PATH}`
+      chmod +x "$GRADLE_DIR/gradlew"
       BUILD_CMD="./gradlew clean compileJava -g .gradle -Dorg.gradle.java.home=${JAVA_HOME}"
       CLEAN_CMD="./gradlew clean -g .gradle -Dorg.gradle.java.home=${JAVA_HOME}"
       BUILD_FILE_PATH="$OUTPUT_PATH"
