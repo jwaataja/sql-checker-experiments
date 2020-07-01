@@ -15,7 +15,7 @@ export JAVA8_HOME=/usr/lib/jvm/openjdk-8
 export JAVA_HOME=${JAVA11_HOME}
 export CHECKERFRAMEWORK=/home/jason/jsr308/checker-framework
 
-tout=3600 # 60 minutes
+tout=600 # 10 minutes
 
 rm -rf sql-test-results
 
